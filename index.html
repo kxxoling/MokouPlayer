@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      video, input {
+        display: block;
+      }
+
+      ::cue {
+        color: #444;
+        font: 1em sans-serif;
+      }
+
+      ::cue .warning {
+        color: red;
+        font: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="video-player">
+      <input class="source" type="file">
+      <button class="snapshot">snapshot</button>
+      <video class="video" controls autoplay download>
+      </video>
+    </section>
+    <script type="text/javascript">
+      var URL = window.URL || window.webkitURL;
+
+      function downloadCanvas(canv) {
+          var image = canv.toDataURL('image/png');
+          var aLink = document.createElement('a');
+          var evt = document.createEvent('HTMLEvents');
+          evt.initEvent('click');
+
+          aLink.download = 'snapshot.png';
+          aLink.href = image;
+
+          aLink.dispatchEvent(evt);
+          aLink.click();
+      }
+      function takeSnapshot() {
+        var video = this.parentNode.querySelector('video');
+        var canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        downloadCanvas(canvas);
+      }
+
+      (function localFileVideoPlayer(videoNode) {
+        var parentNode = videoNode.parentNode;
+        var playSelectedFile = function (event) {
+          var file = this.files[0];
+          var type = file.type;
+
+          var fileURL = URL.createObjectURL(file);
+          videoNode.src = fileURL;
+
+          var downloadNode = document.createElement('a');
+          downloadNode.innerText = 'download';
+          downloadNode.setAttribute('href', fileURL);
+          downloadNode.setAttribute('download', 'download');
+          videoNode.innerHTML = '';
+          videoNode.appendChild(downloadNode);
+        }
+        var inputNode = parentNode.querySelector('input');
+        inputNode.addEventListener('change', playSelectedFile, false);
+        var snapshotBtn = parentNode.querySelector('button');
+        snapshotBtn.addEventListener('click', takeSnapshot, false);
+      })(document.querySelector('video'));
+    </script>
+  </body>
+</html>
