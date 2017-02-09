@@ -21,6 +21,8 @@
     <section class="video-player">
       <input class="source" type="file">
       <button class="snapshot">snapshot</button>
+      <button class="forward">forward</button>
+      <button class="backward">backward</button>
       <video class="video" controls autoplay download>
       </video>
     </section>
@@ -50,6 +52,24 @@
         downloadCanvas(canvas);
       }
 
+      function forward(seconds) {
+        seconds = seconds || 5;
+        var video = this.parentNode.querySelector('video');
+        var currentTime = video.currentTime;
+        var end = video.seekable.end(0);
+        var next = currentTime + 5;
+        video.currentTime = (end > next) ? next : end;
+      }
+
+      function backward(seconds) {
+        seconds = seconds || 5;
+        var video = this.parentNode.querySelector('video');
+        var currentTime = video.currentTime;
+        var end = video.seekable.end(0);
+        var next = currentTime - 5;
+        video.currentTime = (end > next) ? next : end;
+      }
+
       (function localFileVideoPlayer(videoNode) {
         var parentNode = videoNode.parentNode;
         var playSelectedFile = function (event) {
@@ -68,8 +88,12 @@
         }
         var inputNode = parentNode.querySelector('input');
         inputNode.addEventListener('change', playSelectedFile, false);
-        var snapshotBtn = parentNode.querySelector('button');
+        var snapshotBtn = parentNode.querySelector('.snapshot');
         snapshotBtn.addEventListener('click', takeSnapshot, false);
+        var forwardButton = parentNode.querySelector('.forward');
+        var backwardButton = parentNode.querySelector('.backward');
+        forwardButton.addEventListener('click', forward, false);
+        backwardButton.addEventListener('click', backward, false);
       })(document.querySelector('video'));
     </script>
   </body>
